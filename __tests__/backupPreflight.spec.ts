@@ -9,6 +9,7 @@ vi.mock("@/lib/db", () => {
   const counted = () => ({ count: vi.fn().mockResolvedValue(0) });
   return {
     default: {
+      opportunity: counted(),
       profile: counted(),
       resume: counted(),
       coverLetter: counted(),

@@ -1,0 +1,16 @@
+{
+  "formatVersion": 2,
+  "appVersion": "1.2.0",
+  "exportedAt": "2026-11-06T00:00:00.000Z",
+  "sourceEmail": "fictional@example.test",
+  "counts": {
+    "Company": 1,
+    "Contact": 2,
+    "Opportunity": 1,
+    "ContactEmployment": 1,
+    "PersonRelationship": 1,
+    "OpportunityContact": 1,
+    "Task": 1,
+    "CaptureEvent": 1
+  }
+}

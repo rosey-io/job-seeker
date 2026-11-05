@@ -28,7 +28,7 @@ vi.mock("@/lib/db", () => {
     "contact", "contactRole", "jobContact", "jobStageType", "jobStage",
     "jobStageInterviewer", "jobStagePrepQuestion",
     "task", "activity", "question", "userSettings", "chatConversation",
-    "automationRun",
+    "automationRun", "opportunity", "contactEmployment", "personRelationship", "opportunityContact", "captureEvent",
   ]) {
     mock[key] = model();
   }

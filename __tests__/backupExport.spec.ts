@@ -23,6 +23,7 @@ vi.mock("@/lib/db", () => {
     "skill", "coverLetter", "automation", "job", "note",
     "contact", "contactRole", "jobContact", "jobStageType", "jobStage",
     "jobStageInterviewer", "jobStagePrepQuestion",
+    "opportunity", "contactEmployment", "personRelationship", "opportunityContact", "captureEvent",
     "task", "activity", "question", "automationRun", "userSettings",
   ]) {
     mock[key] = delegate();

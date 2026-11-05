@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "requestId": "9b5caaf5-8c4f-4b91-9dd6-c17b01e10101",
+  "source": {
+    "url": "https://www.linkedin.com/in/alex-example",
+    "method": "paste",
+    "capturedAt": "2026-11-06T00:00:00.000Z",
+    "warnings": ["Fictional example. Employment dates are unknown; this is not a complete history."]
+  },
+  "record": {
+    "kind": "person",
+    "name": "Alex Example",
+    "profileUrl": "https://www.linkedin.com/in/alex-example?trk=example",
+    "headline": "Engineering leader",
+    "company": "Example Labs",
+    "notes": "Former colleague; ask about a possible introduction.",
+    "opportunityIds": [],
+    "employment": [{ "company": "Example Labs", "role": "Engineering leader", "current": true }]
+  }
+}

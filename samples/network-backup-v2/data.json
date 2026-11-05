@@ -1,0 +1,114 @@
+{
+  "Company": [
+    {
+      "id": "company-example",
+      "label": "Example Labs",
+      "value": "example labs",
+      "logoUrl": null
+    }
+  ],
+  "Contact": [
+    {
+      "id": "alex",
+      "name": "Alex Example",
+      "email": null,
+      "createdAt": "2026-11-06T00:00:00.000Z",
+      "updatedAt": "2026-11-06T00:00:00.000Z",
+      "companyId": "company-example",
+      "linkedinUrl": "https://www.linkedin.com/in/alex-example",
+      "canonicalProfileUrl": "https://www.linkedin.com/in/alex-example",
+      "notes": "Known former colleague"
+    },
+    {
+      "id": "casey",
+      "name": "Casey Example",
+      "email": null,
+      "createdAt": "2026-11-06T00:00:00.000Z",
+      "updatedAt": "2026-11-06T00:00:00.000Z",
+      "companyId": "company-example",
+      "linkedinUrl": "https://www.linkedin.com/in/casey-example",
+      "canonicalProfileUrl": "https://www.linkedin.com/in/casey-example",
+      "notes": "Hiring manager; association needs verification"
+    }
+  ],
+  "Opportunity": [
+    {
+      "id": "opportunity-platform",
+      "companyId": "company-example",
+      "jobId": null,
+      "title": "Platform leadership",
+      "source": null,
+      "stage": "research",
+      "priority": 5,
+      "fitNotes": "Relevant platform experience",
+      "createdAt": "2026-11-06T00:00:00.000Z",
+      "updatedAt": "2026-11-06T00:00:00.000Z"
+    }
+  ],
+  "ContactEmployment": [
+    {
+      "id": "employment-alex",
+      "contactId": "alex",
+      "companyId": "company-example",
+      "role": "Engineer",
+      "startDate": null,
+      "endDate": null,
+      "current": false,
+      "source": "https://www.linkedin.com/in/alex-example",
+      "capturedAt": "2026-11-06T00:00:00.000Z"
+    }
+  ],
+  "PersonRelationship": [
+    {
+      "id": "route-alex-casey",
+      "fromId": "alex",
+      "toId": "casey",
+      "type": "knows",
+      "status": "confirmed",
+      "evidence": "Fictional: Alex confirmed knowing Casey",
+      "notes": "Ask Alex for introduction",
+      "verifiedAt": "2026-11-06T00:00:00.000Z"
+    }
+  ],
+  "OpportunityContact": [
+    {
+      "id": "link-casey",
+      "opportunityId": "opportunity-platform",
+      "contactId": "casey",
+      "role": "hiring-manager",
+      "status": "suspected"
+    }
+  ],
+  "Task": [
+    {
+      "id": "action-intro",
+      "title": "Ask Alex for introduction",
+      "description": "Fictional follow-up",
+      "status": "awaiting-response",
+      "priority": 5,
+      "percentComplete": 0,
+      "dueDate": "2026-11-07T00:00:00.000Z",
+      "contactId": "alex",
+      "opportunityId": "opportunity-platform",
+      "activityTypeId": null,
+      "createdAt": "2026-11-06T00:00:00.000Z",
+      "updatedAt": "2026-11-06T00:00:00.000Z"
+    }
+  ],
+  "CaptureEvent": [
+    {
+      "id": "capture-alex",
+      "requestId": "9b5caaf5-8c4f-4b91-9dd6-c17b01e10102",
+      "payloadHash": "fixture-only",
+      "sourceUrl": "https://www.linkedin.com/in/alex-example",
+      "method": "paste",
+      "capturedAt": "2026-11-06T00:00:00.000Z",
+      "warnings": "[\"Fictional example; partial history\"]",
+      "result": "{\"id\": \"alex\", \"kind\": \"person\", \"state\": \"created\", \"recordUrl\": \"/dashboard/network#person-alex\"}",
+      "createdAt": "2026-11-06T00:00:00.000Z"
+    }
+  ],
+  "user": {
+    "defaultResumeId": null
+  }
+}

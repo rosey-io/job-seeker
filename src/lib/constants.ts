@@ -383,6 +383,7 @@ export const DISCOVERY_STATUSES = [
 ] as const;
 
 export const SIDEBAR_LINKS = [
+  { icon: UserRound, route: "/dashboard/network", label: "Network" },
   {
     icon: LayoutDashboard,
     route: "/dashboard",

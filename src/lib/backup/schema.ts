@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-export const BACKUP_FORMAT_VERSION = 1;
+export const BACKUP_FORMAT_VERSION = 2;
 
 export const ManifestSchema = z.object({
-  formatVersion: z.literal(BACKUP_FORMAT_VERSION),
+  formatVersion: z.union([z.literal(1), z.literal(BACKUP_FORMAT_VERSION)]),
   appVersion: z.string(),
   exportedAt: z.string(),
   sourceEmail: z.string(),
@@ -231,6 +231,7 @@ const Note = z.object({
 // taken before the contacts feature has no such key, and undefined leaves
 // Prisma on the column default.
 const Contact = z.object({
+  canonicalProfileUrl: optStr.optional(), relationshipStrength: optStr.optional(), tags: str.optional(), lastVerifiedAt: optDt.optional(),
   id,
   name: str,
   email: optStr,
@@ -302,6 +303,7 @@ const JobStagePrepQuestion = z.object({
 });
 
 const Task = z.object({
+  contactId: optId.optional(), opportunityId: optId.optional(),
   id,
   title: str,
   description: optStr,
@@ -315,6 +317,7 @@ const Task = z.object({
 });
 
 const Activity = z.object({
+  contactId: optId.optional(), opportunityId: optId.optional(), channel: optStr.optional(), outcome: optStr.optional(),
   id,
   activityName: str,
   startTime: dt,
@@ -366,6 +369,11 @@ const group = <T extends z.ZodTypeAny>(schema: T) =>
   z.array(schema).default([]);
 
 export const BackupDataSchema = z.object({
+  Opportunity: group(z.object({ id, companyId: id, jobId: optId, title: str, source: optStr, stage: str, priority: int, fitNotes: optStr, createdAt: dt, updatedAt: dt })),
+  ContactEmployment: group(z.object({ id, contactId: id, companyId: id, role: str, startDate: optStr, endDate: optStr, current: bool, source: str, capturedAt: dt })),
+  PersonRelationship: group(z.object({ id, fromId: id, toId: id, type: str, status: z.enum(["confirmed", "suggested"]), evidence: optStr, notes: optStr, verifiedAt: optDt })),
+  OpportunityContact: group(z.object({ id, opportunityId: id, contactId: id, role: str, status: str })),
+  CaptureEvent: group(z.object({ id, requestId: str, payloadHash: str, sourceUrl: str, method: str, capturedAt: dt, warnings: str, result: str, createdAt: dt })),
   Company: group(Company),
   JobTitle: group(JobTitle),
   Location: group(Location),

@@ -3,6 +3,11 @@
 // happen — everything reads this one.
 
 export type BackupModel =
+  | "Opportunity"
+  | "ContactEmployment"
+  | "PersonRelationship"
+  | "OpportunityContact"
+  | "CaptureEvent"
   | "Company"
   | "JobTitle"
   | "Location"
@@ -193,16 +198,21 @@ export const MODEL_SPECS: Record<BackupModel, ModelSpec> = {
     fks: { stageId: "JobStage", questionId: "Question" },
     scope: (userId) => ({ Stage: { Job: { userId } } }),
   },
+  Opportunity: { delegate: "opportunity", owner: "userId", fks: { companyId: "Company", jobId: "Job" }, scope: byUser },
+  ContactEmployment: { delegate: "contactEmployment", fks: { contactId: "Contact", companyId: "Company" }, scope: (userId) => ({ contact: { createdBy: userId } }) },
+  PersonRelationship: { delegate: "personRelationship", fks: { fromId: "Contact", toId: "Contact" }, scope: (userId) => ({ from: { createdBy: userId }, to: { createdBy: userId } }) },
+  OpportunityContact: { delegate: "opportunityContact", fks: { contactId: "Contact", opportunityId: "Opportunity" }, scope: (userId) => ({ opportunity: { userId } }) },
+  CaptureEvent: { delegate: "captureEvent", owner: "userId", fks: {}, scope: byUser },
   Task: {
     delegate: "task",
     owner: "userId",
-    fks: { activityTypeId: "ActivityType" },
+    fks: { activityTypeId: "ActivityType", contactId: "Contact", opportunityId: "Opportunity" },
     scope: byUser,
   },
   Activity: {
     delegate: "activity",
     owner: "userId",
-    fks: { activityTypeId: "ActivityType", taskId: "Task" },
+    fks: { activityTypeId: "ActivityType", taskId: "Task", contactId: "Contact", opportunityId: "Opportunity" },
     scope: byUser,
   },
   Question: { delegate: "question", owner: "createdBy", fks: {}, scope: byCreatedBy },
@@ -247,8 +257,13 @@ export const INSERT_ORDER: BackupModel[] = [
   "JobStage",
   "JobStageInterviewer",
   "JobStagePrepQuestion",
+  "Opportunity",
+  "ContactEmployment",
+  "PersonRelationship",
+  "OpportunityContact",
   "Task",
   "Activity",
+  "CaptureEvent",
   "AutomationRun",
   "UserSettings",
 ];
@@ -264,6 +279,7 @@ export const LOOKUP_MODELS: BackupModel[] = INSERT_ORDER.filter(
 // confirmation meaningful on a fresh instance. Profile is in the list because
 // reads use findFirst — a second profile is a silent coin flip, not an error.
 export const EMPTINESS_MODELS: BackupModel[] = [
+  "Opportunity",
   "Profile",
   "Resume",
   "CoverLetter",

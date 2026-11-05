@@ -40,6 +40,8 @@ model User {
   Notification   Notification[]
   aiCalls        AiCall[]
   ChatConversation ChatConversation?
+  opportunities Opportunity[]
+  captureEvents CaptureEvent[]
   defaultResumeId String?
   defaultResume   Resume?          @relation("UserDefaultResume", fields: [defaultResumeId], references: [id], onDelete: SetNull)
 }
@@ -244,6 +246,18 @@ model Contact {
   createdBy         String // userId
   user              User       @relation(fields: [createdBy], references: [id])
 
+  canonicalProfileUrl String?
+  relationshipStrength String?
+  tags              String @default("[]")
+  lastVerifiedAt    DateTime?
+  employment        ContactEmployment[]
+  outgoingRelations PersonRelationship[] @relation("RelationshipFrom")
+  incomingRelations PersonRelationship[] @relation("RelationshipTo")
+  opportunityLinks  OpportunityContact[]
+  followUps         Task[]
+  conversations     Activity[]
+
+  @@unique([createdBy, canonicalProfileUrl])
   jobLinks          JobContact[]
   stageLinks        JobStageInterviewer[]
 
@@ -327,6 +341,9 @@ model Company {
 
   contacts         Contact[]        @relation("ContactCompany")
   formerColleagues Contact[]        @relation("ContactWorkedAt")
+
+  opportunities Opportunity[]
+  employments ContactEmployment[]
 
   // Watch intent — independent of whether a board is linked
   watched         Boolean          @default(false)
@@ -466,6 +483,8 @@ model Job {
   contactLinks  JobContact[]
   stages        JobStage[]
 
+  opportunities Opportunity[]
+
   // Automation discovery fields
   automationId    String?
   automation      Automation? @relation(fields: [automationId], references: [id], onDelete: SetNull)
@@ -507,6 +526,12 @@ model Activity {
   id           String    @id @default(uuid())
   userId       String
   User         User      @relation(fields: [userId], references: [id])
+  contactId String?
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  opportunityId String?
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  channel String?
+  outcome String?
   activityName String
   startTime    DateTime
   endTime      DateTime?
@@ -534,6 +559,10 @@ model Task {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
+  contactId String?
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  opportunityId String?
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
   title           String
   description     String?
   status          String    @default("in-progress")
@@ -732,4 +761,81 @@ model ChatConversation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Capture facts are separate from user-authored contact notes.
+model CaptureEvent {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestId String
+  payloadHash String
+  sourceUrl String
+  method String
+  capturedAt DateTime
+  warnings String
+  result String
+  createdAt DateTime @default(now())
+  @@unique([userId, requestId])
+}
+
+model Opportunity {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  companyId String
+  company Company @relation(fields: [companyId], references: [id])
+  jobId String?
+  job Job? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  title String
+  source String?
+  stage String @default("research")
+  priority Int @default(3)
+  fitNotes String?
+  people OpportunityContact[]
+  tasks Task[]
+  activities Activity[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId])
+}
+
+model ContactEmployment {
+  id String @id @default(uuid())
+  contactId String
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  companyId String
+  company Company @relation(fields: [companyId], references: [id])
+  role String @default("")
+  startDate String?
+  endDate String?
+  current Boolean @default(false)
+  source String
+  capturedAt DateTime
+  @@unique([contactId, companyId, role])
+}
+
+model PersonRelationship {
+  id String @id @default(uuid())
+  fromId String
+  from Contact @relation("RelationshipFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toId String
+  to Contact @relation("RelationshipTo", fields: [toId], references: [id], onDelete: Cascade)
+  type String
+  status String @default("suggested")
+  evidence String?
+  notes String?
+  verifiedAt DateTime?
+  @@unique([fromId, toId, type])
+}
+
+model OpportunityContact {
+  id String @id @default(uuid())
+  opportunityId String
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  contactId String
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  role String @default("contact")
+  status String @default("suspected")
+  @@unique([opportunityId, contactId, role])
 }

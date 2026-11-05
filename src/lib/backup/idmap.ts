@@ -22,6 +22,7 @@ const OPTIONAL_FKS = new Set<string>([
   "Contact.roleId",
   "Task.activityTypeId",
   "Activity.taskId",
+  "Task.contactId", "Task.opportunityId", "Activity.contactId", "Activity.opportunityId", "Opportunity.jobId",
 ]);
 
 export class IdMap {
@@ -52,6 +53,15 @@ export function buildCreateData(
 ): Record<string, unknown> {
   const spec = MODEL_SPECS[model];
   const data: Record<string, unknown> = { ...row };
+  if (model === "CaptureEvent") {
+    try {
+      const result = JSON.parse(String(row.result));
+      const mapped = idMap.get(result.id);
+      data.result = JSON.stringify({ ...result, id: mapped ?? null, recordUrl: mapped ? (result.kind === "job" ? `/dashboard/myjobs/${mapped}` : `/dashboard/network#${result.kind}-${mapped}`) : null });
+      data.requestId = randomUUID();
+      data.payloadHash = "restored-history";
+    } catch { throw new Error("Invalid capture provenance result"); }
+  }
 
   const newId = idMap.get(row.id as string);
   if (!newId) {

@@ -153,6 +153,7 @@ describe("emptiness models", () => {
       "CoverLetter",
       "Job",
       "Note",
+      "Opportunity",
       "Profile",
       "Question",
       "Resume",
