@@ -2,6 +2,21 @@
 
 This project extends JobSync rather than replacing it. Ordinary tracking, capture, imports and backups need no AI API key.
 
+## Use it on your computer
+
+Install Node.js 22 or 24 and Docker Desktop (or Docker Engine), and start Docker. On Windows, run the shell commands in WSL. Then:
+
+```sh
+git clone https://github.com/rosey-io/job-seeker.git
+cd job-seeker
+bash scripts/cloud-setup.sh
+npm run dev
+```
+
+On your own computer, open localhost on port 3737 in Chrome, create an account, and choose **Network**. The setup script works from any checkout path, generates local configuration, and starts the database. After the first setup, start Docker and run `npm run dev` from this folder; if the database container is stopped, run `docker start job-seeker-db` first.
+
+For an online URL, this version expects a persistent server with PostgreSQL and persistent upload storage. A Docker host fits those requirements. Vercel needs an external database, persistent attachment storage and a replacement for the in-process background scheduler; pushing the repository alone does not provision those services. No online deployment is currently configured.
+
 ## Cloud development
 
 Use the existing `/workspace/job-seeker` checkout; each cloud task is already isolated. Do not create a worktree unless the user requests one.
@@ -46,30 +61,27 @@ The extension only inspects a user-selected active page or selected text. No bac
 
 ## Validation
 
-Executed in this machine:
+The original engine-download error is resolved after the environment network change.
 
-- Locked dependency installation: passed (862 packages).
-- Lint: passed. Extension JavaScript and setup shell syntax checks passed.
-- Capture fixture/merge/CSV/backup-reference checks plus updated backup ordering and clear-data checks: 32 passed.
-- Capture authorization: 5 passed (anonymous, cross-site, missing scope, wrong extension origin and CORS).
-- Affected capture and backup suites: 86 passed across 9 test files, including legacy-format acceptance and new-format rejection by version checks.
-- PostgreSQL migration: upstream baseline + additive migration + linked sample rows passed in an isolated schema; transaction rolled back afterwards.
+Verified in this machine:
 
-Blocked, not passed:
+- Locked install, Prisma generation and both migrations passed. Re-running setup preserved local configuration and data.
+- Type checking, lint and the production build passed. The build reports an existing unpdf import.meta bundling warning; it still completes successfully.
+- Affected capture and backup suites passed 86 tests.
+- Real PostgreSQL capture and backup/restore suites passed 13 tests in isolated schemas.
+- A headless Chromium app check passed: sign up/sign in, anonymous capture rejection, opportunity creation, person capture, canonical duplicate capture/retry, note preservation and authenticated backup download. Temporary test-account data was removed afterwards.
+- The initial full-suite run passed 3,707 tests with 13 skipped and found one outdated ownership-test fixture for the added CaptureEvent model. That fixture was corrected and its focused test passed; no second complete-suite run is claimed.
 
-- Prisma native engine generation: download/checksum destination returns HTTP 403 under the active network policy. Verification was never disabled. `binaries.prisma.sh` is saved in the environment draft but must be applied through environment settings.
-- Full typecheck, application startup, authenticated save flow and full database export/restore remain unvalidated until generation succeeds. The existing suite was interrupted after generation-related import failures; no full-suite pass is claimed.
-- Live browser extraction and pairing were not performed.
+Live LinkedIn/SEEK pages and a real Chrome extension pairing flow remain unverified. The local browser app test above is separate from those site integrations. Employment auto-parsing, richer relationship editing, Teal migration and optional Gemini integration remain limited as described in IMPLEMENTATION_MAP.md.
 
-After applying network settings, run:
+To repeat checks:
 
 ```sh
-bash scripts/cloud-setup.sh
 npx tsc --noEmit
 npm run lint
 npm test -- --maxWorkers=2
 BACKUP_TEST_DATABASE_URL=postgresql://jobsync:jobsync@127.0.0.1:5432/jobsync npx vitest run __tests__/captureRoundTrip.spec.ts __tests__/backupRoundTrip.spec.ts --maxWorkers=2
-npm run dev
+npm run build
 ```
 
-The opt-in database tests create isolated schemas; they do not wipe your app data. Their actual run is still outstanding. Required functional checks after startup: sign up/sign in, create opportunity, pair extension, save the same person twice, disconnect/retry, review changed facts, add a follow-up, export and restore the linked examples into a separate account. Fixture tests alone do not establish live LinkedIn compatibility.
+The opt-in database tests create isolated schemas; they do not wipe your app data. Fixture tests alone do not establish live LinkedIn compatibility.

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd /workspace/job-seeker
+task_repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$task_repo_root"
 npm ci --no-audit --no-fund
 npx prisma generate
 # Secrets are generated locally, never committed, logged or copied to settings.
@@ -15,8 +16,13 @@ if (!fs.existsSync('.env')) fs.writeFileSync('.env', [
 ].join('\n') + '\n', { mode: 0o600, flag: 'wx' });
 JS
 # This is a dedicated local development database, with no public port.
-docker_args=(--host=unix:///var/run/docker.sock)
-local_docker() { env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker "${docker_args[@]}" "$@"; }
+local_docker() {
+  if [ -f /etc/codex/network-policy.json ]; then
+    env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker --host=unix:///var/run/docker.sock "$@"
+  else
+    docker "$@"
+  fi
+}
 if local_docker container inspect job-seeker-db >/dev/null 2>&1; then
   local_docker start job-seeker-db >/dev/null
 else

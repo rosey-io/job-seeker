@@ -18,6 +18,7 @@ describe("ownership rewrite", () => {
         userId: FOREIGN,
         createdBy: FOREIGN,
       };
+      if (model === "CaptureEvent") row.result = JSON.stringify({ id: "row-1", kind: "person", state: "created" });
       // Satisfy the model's foreign keys with self-references into the map.
       for (const field of Object.keys(spec.fks)) row[field] = "row-1";
 
