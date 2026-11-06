@@ -4,7 +4,16 @@ export function localModeEnabled() {
 }
 export function isLoopbackRequest(headers: Pick<Headers, "get">) {
   const host = headers.get("host");
-  if (!host || headers.get("sec-fetch-site") === "cross-site") return false;
+  if (!host) return false;
+  if (headers.get("sec-fetch-site") === "cross-site") {
+    // Opening a user-clicked link from another site is a page navigation,
+    // not a cross-origin API call. Keep fetches, embeds and form posts denied.
+    const clickedPage = headers.get("sec-fetch-mode") === "navigate"
+      && headers.get("sec-fetch-dest") === "document"
+      && headers.get("sec-fetch-user") === "?1"
+      && !headers.get("origin");
+    if (!clickedPage) return false;
+  }
   try {
     const url = new URL(`http://${host}`);
     if (url.host !== host.toLowerCase() || !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) return false;

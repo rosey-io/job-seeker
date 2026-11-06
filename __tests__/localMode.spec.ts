@@ -25,6 +25,14 @@ describe("local mode policy", () => {
     expect(isLoopbackRequest(requestHeaders("127.0.0.1:3737", { origin: "http://127.0.0.1:3737" }))).toBe(true);
     expect(isLoopbackRequest(requestHeaders("[::1]:3737"))).toBe(true);
   });
+  it("allows a clicked top-level page link without enabling cross-site API calls", () => {
+    const navigation = { "sec-fetch-site": "cross-site", "sec-fetch-mode": "navigate", "sec-fetch-dest": "document", "sec-fetch-user": "?1" };
+    expect(isLoopbackRequest(requestHeaders("localhost:3737", navigation))).toBe(true);
+    expect(isLoopbackRequest(requestHeaders("localhost:3737", { ...navigation, origin: "https://evil.example" }))).toBe(false);
+    expect(isLoopbackRequest(requestHeaders("localhost:3737", { ...navigation, "sec-fetch-mode": "cors" }))).toBe(false);
+    expect(isLoopbackRequest(requestHeaders("localhost:3737", { ...navigation, "sec-fetch-dest": "iframe" }))).toBe(false);
+    expect(isLoopbackRequest(requestHeaders("localhost:3737", { ...navigation, "sec-fetch-user": "" }))).toBe(false);
+  });
   it("rejects LAN hosts, lookalikes, malformed hosts and cross-site requests", () => {
     for (const host of ["192.168.1.129:3737", "localhost.example.test", "localhost:3737/path", "evil@localhost:3737"]) expect(isLoopbackRequest(requestHeaders(host))).toBe(false);
     expect(isLoopbackRequest(requestHeaders("localhost:3737", { origin: "https://evil.example" }))).toBe(false);
