@@ -1,3 +1,4 @@
+import { localModeEnabled, isLoopbackRequest } from "./lib/local-mode";
 import type { NextAuthConfig } from "next-auth";
 
 declare module "next-auth" {
@@ -17,7 +18,12 @@ export const authConfig = {
   },
   secret: process.env.AUTH_SECRET,
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    authorized({ auth, request }) {
+      const { nextUrl } = request;
+      if (localModeEnabled()) {
+        if (!isLoopbackRequest(request.headers)) return false;
+        return true;
+      }
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       const isApiRoute = nextUrl.pathname.startsWith("/api");

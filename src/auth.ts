@@ -1,4 +1,7 @@
-import NextAuth from "next-auth";
+import NextAuth, { type Session } from "next-auth";
+import { headers } from "next/headers";
+import { localModeEnabled, isLoopbackRequest } from "@/lib/local-mode";
+import { getLocalUser } from "@/lib/local-user";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -18,7 +21,7 @@ async function getUser(email: string): Promise<User | undefined> {
   }
 }
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+const { auth: sessionAuth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
@@ -40,3 +43,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
 });
+
+export { handlers, signIn, signOut };
+
+export async function auth(): Promise<Session | null> {
+  if (!localModeEnabled()) return sessionAuth();
+  if (!isLoopbackRequest(await headers())) return null;
+  return { user: await getLocalUser(), expires: new Date(Date.now() + 86400000).toISOString() };
+}

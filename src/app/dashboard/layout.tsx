@@ -1,3 +1,4 @@
+import { localModeEnabled } from "@/lib/local-mode";
 import { cookies } from "next/headers";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -48,7 +49,7 @@ export default async function RootLayout({
           <NotificationProvider>
             <AgentChatProvider initialMessages={conversation.data ?? []}>
               <div className="flex min-h-screen w-full flex-col bg-muted/40">
-                <Sidebar user={user} signOutAction={signOutAction} />
+                <Sidebar user={user} signOutAction={signOutAction} localMode={localModeEnabled()} />
                 <SidebarInset>
                   <Header />
                   <GlobalActivityBanner />

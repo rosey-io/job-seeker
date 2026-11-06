@@ -14,9 +14,10 @@ import { CurrentUser } from "@/models/user.model";
 interface SidebarProps {
   user: CurrentUser | null;
   signOutAction: () => void;
+  localMode?: boolean;
 }
 
-function Sidebar({ user, signOutAction }: SidebarProps) {
+function Sidebar({ user, signOutAction, localMode }: SidebarProps) {
   const path = usePathname();
   const { expanded } = useSidebar();
   const isOnDashboard = path === "/dashboard";
@@ -80,6 +81,7 @@ function Sidebar({ user, signOutAction }: SidebarProps) {
             user={user}
             expanded={expanded}
             signOutAction={signOutAction}
+            localMode={localMode}
           />
         </div>
       </aside>

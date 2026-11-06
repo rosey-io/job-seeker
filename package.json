@@ -9,8 +9,10 @@
     "safari >= 16.4"
   ],
   "scripts": {
-    "dev": "next dev --turbopack -p 3737",
-    "dev:webpack": "next dev -p 3737",
+    "dev": "next dev --turbopack -p 3737 --hostname 127.0.0.1",
+    "local:no-login": "node scripts/local-mode.cjs enable",
+    "local:login": "node scripts/local-mode.cjs disable",
+    "dev:webpack": "next dev -p 3737 --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

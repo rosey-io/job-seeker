@@ -17,6 +17,24 @@ On your own computer, open localhost on port 3737 in Chrome, create an account, 
 
 For an online URL, this version expects a persistent server with PostgreSQL and persistent upload storage. A Docker host fits those requirements. Vercel needs an external database, persistent attachment storage and a replacement for the in-process background scheduler; pushing the repository alone does not provision those services. No online deployment is currently configured.
 
+## Optional: use locally without logging in
+
+From the project folder, stop the current app with Ctrl+C, then:
+
+```sh
+git pull --ff-only
+npm run local:no-login
+npm run dev
+```
+
+Open localhost on port 3737 again. No email, password or sign-up is required. The option is saved in your ignored `.env` file. One existing account is reused with its data intact; an empty database gets a fully seeded local workspace automatically. If several accounts exist, set `JOBSYNC_LOCAL_USER_ID` in `.env` to the account you intend to use; the app refuses to guess.
+
+Development startup now binds to 127.0.0.1, so it is available on your own computer rather than your LAN. No-login access also rejects non-loopback Host headers and cross-site browser requests. The option is ignored in production, where normal authentication stays required. The capture extension still uses its scoped pairing token.
+
+To turn login back on, run `npm run local:login` and restart the app. Existing accounts retain their original passwords. An automatically created local workspace has no known password: re-enable local mode to access it, or export a full backup before turning login on, create a normal account, and restore that backup there. Changing the option does not delete records.
+
+Validated with 45 focused tests, type checking, lint and an isolated-database Chromium smoke check covering automatic workspace creation, saving without cookies, reopening with preserved data, remote-host/cross-origin rejection, and restoring normal authentication.
+
 ## Cloud development
 
 Use the existing `/workspace/job-seeker` checkout; each cloud task is already isolated. Do not create a worktree unless the user requests one.

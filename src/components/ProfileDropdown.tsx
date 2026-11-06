@@ -29,17 +29,19 @@ interface ProfileDropdownProps {
   user: any;
   expanded: boolean;
   signOutAction: () => void;
+  localMode?: boolean;
 }
 
 export function ProfileDropdown({
   user,
   expanded,
   signOutAction,
+  localMode,
 }: ProfileDropdownProps) {
   const [supportDialogOpen, setSupportDialogOpen] = useState(false);
   const version = useAppVersion();
   const { summary } = useNotifications();
-  const label = user?.email ?? "My Account";
+  const label = localMode ? "Local workspace" : user?.email ?? "My Account";
 
   return (
     <>
@@ -145,14 +147,14 @@ export function ProfileDropdown({
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild className="cursor-pointer">
+          {!localMode && <DropdownMenuItem asChild className="cursor-pointer">
             <form action={signOutAction}>
               <button type="submit" className="flex w-full items-center">
                 <PowerIcon className="w-5 mr-2" />
                 <div className="hidden md:block">Logout</div>
               </button>
             </form>
-          </DropdownMenuItem>
+          </DropdownMenuItem>}
         </DropdownMenuContent>
       </DropdownMenu>
 
