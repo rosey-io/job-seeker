@@ -1,3 +1,4 @@
+import { isLoopbackRequest } from "@/lib/local-mode";
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { resolveMcpToken } from "@/lib/mcp/auth";
@@ -6,7 +7,18 @@ import { CaptureError } from "./schema";
 export const extensionOrigin = (value: string) => /^chrome-extension:\/\/[a-p]{32}$/.test(value);
 export function sameOrigin(req: Request) {
   const origin = req.headers.get("origin");
-  return !origin || origin === new URL(req.url).origin;
+  if (!origin) return true;
+  const url = new URL(req.url);
+  if (origin === url.origin) return true;
+  // Next's development Request URL can use localhost internally even when
+  // the browser connected to 127.0.0.1 (and vice versa). The actual Host must
+  // still match the browser Origin; this does not permit cross-origin tabs.
+  if (process.env.NODE_ENV !== "development" || !isLoopbackRequest(req.headers)) return false;
+  try {
+    const browser = new URL(origin);
+    return ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)
+      && browser.protocol === url.protocol && browser.port === url.port;
+  } catch { return false; }
 }
 export async function captureAccess(req: Request) {
   if (req.headers.has("authorization")) {
